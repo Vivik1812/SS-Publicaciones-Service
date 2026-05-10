@@ -22,7 +22,7 @@ public class PublicacionRequestDTO {
     @NotNull(message = "La longitud es obligatoria")
     private Double longitud;
 
-    @NotNull(message = "El usuario es obigatorio")
+    @NotNull(message = "El usuario es obligatorio")
     private Long usuarioId;
 
     private Long imagenId;

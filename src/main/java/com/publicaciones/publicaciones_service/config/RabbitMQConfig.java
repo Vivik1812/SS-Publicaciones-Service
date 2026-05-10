@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMQConfig {
 
-    public static final String COLA_NOTIFICACIONES = "cola.norificaciones";
+    public static final String COLA_NOTIFICACIONES = "cola.notificaciones";
     public static final String EXCHANGE = "exchange.publicaciones";
     public static final String CLAVE_ENRUTAMIENTO = "publicacion.creada";
 
@@ -26,7 +26,7 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Binding enlace(Queue,cola, DirectExchange exchange){
+    public Binding enlace(Queue cola, DirectExchange exchange) {
         return BindingBuilder.bind(cola).to(exchange).with(CLAVE_ENRUTAMIENTO);
     }
 
