@@ -1,7 +1,9 @@
 package com.publicaciones.publicaciones_service.dto;
 
 import lombok.Data;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
+
+import com.publicaciones.publicaciones_service.model.Mascota;
 
 @Data
 public class PublicacionResponseDTO {
@@ -10,10 +12,10 @@ public class PublicacionResponseDTO {
     private String titulo;
     private String descripcion;
     private String estado;
-    private String tipo;
     private Double latitud;
     private Double longitud;
     private Long usuarioId;
-    private Timestamp fechaPublicacion;
+    private LocalDateTime fechaPublicacion;
     private String imagenUrl;
+    private Mascota mascota;
 }

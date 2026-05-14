@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.sql.Timestamp;
+
 
 @Service
 @RequiredArgsConstructor
@@ -26,12 +26,11 @@ public class PublicacionService {
         Publicacion publicacion = new Publicacion();
         publicacion.setTitulo(dto.getTitulo());
         publicacion.setDescripcion(dto.getDescripcion());
-        publicacion.setTipo(dto.getTipo());
+        publicacion.setEstado(dto.getEstado());
         publicacion.setLatitud(dto.getLatitud());
         publicacion.setLongitud(dto.getLongitud());
         publicacion.setUsuarioId(dto.getUsuarioId());
-        publicacion.setFechaPublicacion(new Timestamp(System.currentTimeMillis()));
-        publicacion.setEstado("ACTIVO");
+        publicacion.setMascota(dto.getMascota());
 
         // asociar imagen del request
         if (dto.getImagenId() != null) {
@@ -46,7 +45,7 @@ public class PublicacionService {
         rabbitTemplate.convertAndSend(
                 RabbitMQConfig.EXCHANGE,
                 RabbitMQConfig.CLAVE_ENRUTAMIENTO,
-                guardada);
+                "Nueva publicacion creada: " + guardada.getId());
 
         return mapearAResponse(guardada);
     }
@@ -66,6 +65,14 @@ public class PublicacionService {
                 .toList();
     }
 
+    //Litar todas las publicaciones de un usuario 
+    public List<PublicacionResponseDTO> listaPorUsuario(Long usuarioId){
+        return publicacionRepository.findByUsuarioId(usuarioId)
+            .stream()
+            .map(this::mapearAResponse)
+            .toList();
+    }
+
     // mapear entidad a DTO
     private PublicacionResponseDTO mapearAResponse(Publicacion publicacion) {
         PublicacionResponseDTO response = new PublicacionResponseDTO();
@@ -73,11 +80,49 @@ public class PublicacionService {
         response.setTitulo(publicacion.getTitulo());
         response.setDescripcion(publicacion.getDescripcion());
         response.setEstado(publicacion.getEstado());
-        response.setTipo(publicacion.getTipo());
+
         response.setLatitud(publicacion.getLatitud());
         response.setLongitud(publicacion.getLongitud());
         response.setUsuarioId(publicacion.getUsuarioId());
         response.setFechaPublicacion(publicacion.getFechaPublicacion());
+        response.setMascota(publicacion.getMascota());
+
+        if(publicacion.getImagen() != null){
+            response.setImagenUrl(publicacion.getImagen().getUrl());
+        }
         return response;
+    }
+
+    //Editar publicacion
+    public PublicacionResponseDTO actualizar(Long id, PublicacionRequestDTO dto){
+        Publicacion publicacion = publicacionRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Publicacion no encontrada"));
+
+        publicacion.setTitulo(dto.getTitulo());
+        publicacion.setTitulo(dto.getDescripcion());
+        publicacion.setTitulo(dto.getEstado());
+        publicacion.setLatitud(dto.getLatitud());
+        publicacion.setLongitud(dto.getLongitud());
+        publicacion.setUsuarioId(dto.getUsuarioId());
+        publicacion.setMascota(dto.getMascota());
+
+        if(dto.getImagenId() != null){
+            Imagen imagen = imagenRepository.findById(dto.getImagenId())
+                .orElseThrow(() -> new RuntimeException("Imagen no encontrada"));
+
+            publicacion.setImagen(imagen);
+        }
+
+        Publicacion actualizada = publicacionRepository.save(publicacion);
+
+        return mapearAResponse(actualizada);
+    }
+
+    //Eliminar publicacion
+    public void eliminar(Long id){
+        Publicacion publicacion = publicacionRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Publicacion no encontrada"));
+
+        publicacionRepository.delete(publicacion);
     }
 }
