@@ -99,8 +99,8 @@ public class PublicacionService {
             .orElseThrow(() -> new RuntimeException("Publicacion no encontrada"));
 
         publicacion.setTitulo(dto.getTitulo());
-        publicacion.setTitulo(dto.getDescripcion());
-        publicacion.setTitulo(dto.getEstado());
+        publicacion.setDescripcion(dto.getDescripcion());
+        publicacion.setEstado(dto.getEstado());
         publicacion.setLatitud(dto.getLatitud());
         publicacion.setLongitud(dto.getLongitud());
         publicacion.setUsuarioId(dto.getUsuarioId());
