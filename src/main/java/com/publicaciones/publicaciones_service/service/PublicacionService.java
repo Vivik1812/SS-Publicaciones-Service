@@ -3,6 +3,7 @@ package com.publicaciones.publicaciones_service.service;
 import com.publicaciones.publicaciones_service.config.RabbitMQConfig;
 import com.publicaciones.publicaciones_service.dto.PublicacionRequestDTO;
 import com.publicaciones.publicaciones_service.dto.PublicacionResponseDTO;
+import com.publicaciones.publicaciones_service.dto.MascotaDTO;
 import com.publicaciones.publicaciones_service.model.Imagen;
 import com.publicaciones.publicaciones_service.model.Publicacion;
 import com.publicaciones.publicaciones_service.repository.ImagenRepository;
@@ -30,7 +31,14 @@ public class PublicacionService {
         publicacion.setLatitud(dto.getLatitud());
         publicacion.setLongitud(dto.getLongitud());
         publicacion.setUsuarioId(dto.getUsuarioId());
-        publicacion.setMascota(dto.getMascota());
+        Mascota mascota = new Mascota();
+        mascota.setNombreMascota(dto.getMascota().getNombreMascota());
+        mascota.setEspecie(dto.getMascota().getEspecie());
+        mascota.setRaza(dto.getMascota().getRaza());
+        mascota.setColor(dto.getMascota().getColor());
+        mascota.setSexo(dto.getMascota().getSexo());
+        mascota.setTamanio(dto.getMascota().getTamanio());
+        publicacion.setMascota(mascota);
 
         // asociar imagen del request
         if (dto.getImagenId() != null) {
@@ -104,7 +112,15 @@ public class PublicacionService {
         publicacion.setLatitud(dto.getLatitud());
         publicacion.setLongitud(dto.getLongitud());
         publicacion.setUsuarioId(dto.getUsuarioId());
-        publicacion.setMascota(dto.getMascota());
+        Mascota mascota = new Mascota();
+        mascota.setNombreMascota(dto.getMascota().getNombreMascota());
+        mascota.setEspecie(dto.getMascota().getEspecie());
+        mascota.setRaza(dto.getMascota().getRaza());
+        mascota.setColor(dto.getMascota().getColor());
+        mascota.setSexo(dto.getMascota().getSexo());
+        mascota.setTamanio(dto.getMascota().getTamanio());
+        publicacion.setMascota(mascota);
+        
 
         if(dto.getImagenId() != null){
             Imagen imagen = imagenRepository.findById(dto.getImagenId())
