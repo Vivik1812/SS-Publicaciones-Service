@@ -1,7 +1,5 @@
 package com.publicaciones.publicaciones_service.dto;
 
-import com.publicaciones.publicaciones_service.dto.MascotaDTO;
-
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
@@ -38,5 +36,5 @@ public class PublicacionRequestDTO {
 
     @NotNull(message = "La mascota es obligatoria")
     @Valid
-    private Mascota DTO mascota;
+    private MascotaDTO mascota;
 }

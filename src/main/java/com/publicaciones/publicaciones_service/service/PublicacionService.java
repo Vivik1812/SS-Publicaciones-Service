@@ -1,9 +1,9 @@
 package com.publicaciones.publicaciones_service.service;
 
 import com.publicaciones.publicaciones_service.config.RabbitMQConfig;
+import com.publicaciones.publicaciones_service.dto.NotificacionEventoDTO;
 import com.publicaciones.publicaciones_service.dto.PublicacionRequestDTO;
 import com.publicaciones.publicaciones_service.dto.PublicacionResponseDTO;
-import com.publicaciones.publicaciones_service.dto.MascotaDTO;
 import com.publicaciones.publicaciones_service.model.Imagen;
 import com.publicaciones.publicaciones_service.model.Publicacion;
 import com.publicaciones.publicaciones_service.repository.ImagenRepository;
@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import java.util.List;
-
+import com.publicaciones.publicaciones_service.model.Mascota;
 
 @Service
 @RequiredArgsConstructor
@@ -50,10 +50,14 @@ public class PublicacionService {
         Publicacion guardada = publicacionRepository.save(publicacion);
 
         // enviar mensaje a RabbitMQ
+        NotificacionEventoDTO evento = new NotificacionEventoDTO(
+                guardada.getUsuarioId(),
+                guardada.getId(),
+                "Se ha creado una nueva publicación de mascota");
         rabbitTemplate.convertAndSend(
                 RabbitMQConfig.EXCHANGE,
                 RabbitMQConfig.CLAVE_ENRUTAMIENTO,
-                "Nueva publicacion creada: " + guardada.getId());
+                evento);
 
         return mapearAResponse(guardada);
     }
@@ -73,12 +77,12 @@ public class PublicacionService {
                 .toList();
     }
 
-    //Litar todas las publicaciones de un usuario 
-    public List<PublicacionResponseDTO> listaPorUsuario(Long usuarioId){
+    // Litar todas las publicaciones de un usuario
+    public List<PublicacionResponseDTO> listaPorUsuario(Long usuarioId) {
         return publicacionRepository.findByUsuarioId(usuarioId)
-            .stream()
-            .map(this::mapearAResponse)
-            .toList();
+                .stream()
+                .map(this::mapearAResponse)
+                .toList();
     }
 
     // mapear entidad a DTO
@@ -95,16 +99,16 @@ public class PublicacionService {
         response.setFechaPublicacion(publicacion.getFechaPublicacion());
         response.setMascota(publicacion.getMascota());
 
-        if(publicacion.getImagen() != null){
+        if (publicacion.getImagen() != null) {
             response.setImagenUrl(publicacion.getImagen().getUrl());
         }
         return response;
     }
 
-    //Editar publicacion
-    public PublicacionResponseDTO actualizar(Long id, PublicacionRequestDTO dto){
+    // Editar publicacion
+    public PublicacionResponseDTO actualizar(Long id, PublicacionRequestDTO dto) {
         Publicacion publicacion = publicacionRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Publicacion no encontrada"));
+                .orElseThrow(() -> new RuntimeException("Publicacion no encontrada"));
 
         publicacion.setTitulo(dto.getTitulo());
         publicacion.setDescripcion(dto.getDescripcion());
@@ -120,11 +124,10 @@ public class PublicacionService {
         mascota.setSexo(dto.getMascota().getSexo());
         mascota.setTamanio(dto.getMascota().getTamanio());
         publicacion.setMascota(mascota);
-        
 
-        if(dto.getImagenId() != null){
+        if (dto.getImagenId() != null) {
             Imagen imagen = imagenRepository.findById(dto.getImagenId())
-                .orElseThrow(() -> new RuntimeException("Imagen no encontrada"));
+                    .orElseThrow(() -> new RuntimeException("Imagen no encontrada"));
 
             publicacion.setImagen(imagen);
         }
@@ -134,10 +137,10 @@ public class PublicacionService {
         return mapearAResponse(actualizada);
     }
 
-    //Eliminar publicacion
-    public void eliminar(Long id){
+    // Eliminar publicacion
+    public void eliminar(Long id) {
         Publicacion publicacion = publicacionRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Publicacion no encontrada"));
+                .orElseThrow(() -> new RuntimeException("Publicacion no encontrada"));
 
         publicacionRepository.delete(publicacion);
     }
