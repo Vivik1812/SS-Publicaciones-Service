@@ -11,6 +11,7 @@ import com.publicaciones.publicaciones_service.repository.PublicacionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import com.publicaciones.publicaciones_service.model.Mascota;
 
@@ -23,6 +24,7 @@ public class PublicacionService {
     private final RabbitTemplate rabbitTemplate;
 
     // Crear una nueva publicación
+    @Transactional
     public PublicacionResponseDTO crear(PublicacionRequestDTO dto) {
         Publicacion publicacion = new Publicacion();
         publicacion.setTitulo(dto.getTitulo());
@@ -40,12 +42,8 @@ public class PublicacionService {
         mascota.setTamanio(dto.getMascota().getTamanio());
         publicacion.setMascota(mascota);
 
-        // asociar imagen del request
-        if (dto.getImagenId() != null) {
-            Imagen imagen = imagenRepository.findById(dto.getImagenId())
-                    .orElseThrow(() -> new RuntimeException("Imagen no encontrada"));
-            publicacion.setImagen(imagen);
-        }
+        // asociar imagen 
+        asociarImagenes(publicacion, dto.getImagenIds());
 
         Publicacion guardada = publicacionRepository.save(publicacion);
 
@@ -77,7 +75,7 @@ public class PublicacionService {
                 .toList();
     }
 
-    // Litar todas las publicaciones de un usuario
+    // Listar todas las publicaciones de un usuario
     public List<PublicacionResponseDTO> listaPorUsuario(Long usuarioId) {
         return publicacionRepository.findByUsuarioId(usuarioId)
                 .stream()
@@ -85,6 +83,16 @@ public class PublicacionService {
                 .toList();
     }
 
+    //asociar imagenes a la publicacion
+    private void asociarImagenes(Publicacion publicacion, List<Long> imagenIds){
+        if (imagenIds != null || imagenIds.isEmpty()) {
+            return;
+        }
+            List<Imagen> imagenes = imagenRepository.findAllById(imagenIds);
+            imagenes.forEach(imagen -> imagen.setPublicacion(publicacion));
+            publicacion.setImagenes(imagenes);
+    }
+    
     // mapear entidad a DTO
     private PublicacionResponseDTO mapearAResponse(Publicacion publicacion) {
         PublicacionResponseDTO response = new PublicacionResponseDTO();
@@ -99,13 +107,16 @@ public class PublicacionService {
         response.setFechaPublicacion(publicacion.getFechaPublicacion());
         response.setMascota(publicacion.getMascota());
 
-        if (publicacion.getImagen() != null) {
-            response.setImagenUrl(publicacion.getImagen().getUrl());
-        }
+        response.setImagenUrls(
+            publicacion.getImagenes() == null 
+            ? List.of()
+            :publicacion.getImagenes().stream().map(Imagen::getUrl).toList()
+        );
         return response;
     }
 
     // Editar publicacion
+    @Transactional
     public PublicacionResponseDTO actualizar(Long id, PublicacionRequestDTO dto) {
         Publicacion publicacion = publicacionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Publicacion no encontrada"));
@@ -126,10 +137,9 @@ public class PublicacionService {
         publicacion.setMascota(mascota);
 
         if (dto.getImagenId() != null) {
-            Imagen imagen = imagenRepository.findById(dto.getImagenId())
-                    .orElseThrow(() -> new RuntimeException("Imagen no encontrada"));
-
-            publicacion.setImagen(imagen);
+            publicacion.getImagenes().forEach(imagen -> imagen.setPublicacion(null));
+            publicacion.getImagenes().clear();
+            asociarImagenes(publicacion, dto.getImagenIds());
         }
 
         Publicacion actualizada = publicacionRepository.save(publicacion);

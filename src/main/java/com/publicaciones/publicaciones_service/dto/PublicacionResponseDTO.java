@@ -16,6 +16,6 @@ public class PublicacionResponseDTO {
     private Double longitud;
     private Long usuarioId;
     private LocalDateTime fechaPublicacion;
-    private String imagenUrl;
+    private List<String> imagenIds;
     private Mascota mascota;
 }

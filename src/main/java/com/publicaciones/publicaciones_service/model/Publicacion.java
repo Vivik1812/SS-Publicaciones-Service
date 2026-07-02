@@ -50,9 +50,10 @@ public class Publicacion {
     @NotNull
     private Long usuarioId;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "imagen_id")
-    private Imagen imagen;
+    @OneToMany(mappedBy = "publicacion", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Imagen> imagenes = new ArrayList<>();
+    
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "mascota_id", nullable = false)
     private Mascota mascota;

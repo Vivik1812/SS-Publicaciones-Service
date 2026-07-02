@@ -17,4 +17,8 @@ public class Imagen {
     private Long id;
 
     private String url;
+
+    @ManyToOne
+    @JoinColumn(name = "publicacion_id")
+    private Publicacion publicacion;
 }

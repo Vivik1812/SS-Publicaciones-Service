@@ -32,7 +32,8 @@ public class PublicacionRequestDTO {
     @NotNull(message = "El usuario es obligatorio")
     private Long usuarioId;
 
-    private Long imagenId;
+    @Size(max = 5, message = "Se pueden subir hasta 5 imágenes por publicación")
+    private List<String> imagenIds;
 
     @NotNull(message = "La mascota es obligatoria")
     @Valid
