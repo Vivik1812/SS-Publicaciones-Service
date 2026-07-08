@@ -85,7 +85,7 @@ public class PublicacionService {
 
     //asociar imagenes a la publicacion
     private void asociarImagenes(Publicacion publicacion, List<Long> imagenIds){
-        if (imagenIds != null || imagenIds.isEmpty()) {
+        if (imagenIds == null || imagenIds.isEmpty()) {
             return;
         }
             List<Imagen> imagenes = imagenRepository.findAllById(imagenIds);
@@ -107,7 +107,7 @@ public class PublicacionService {
         response.setFechaPublicacion(publicacion.getFechaPublicacion());
         response.setMascota(publicacion.getMascota());
 
-        response.setImagenUrls(
+        response.setImagenIds(
             publicacion.getImagenes() == null 
             ? List.of()
             :publicacion.getImagenes().stream().map(Imagen::getUrl).toList()
@@ -136,7 +136,7 @@ public class PublicacionService {
         mascota.setTamanio(dto.getMascota().getTamanio());
         publicacion.setMascota(mascota);
 
-        if (dto.getImagenId() != null) {
+        if (dto.getImagenIds() != null) {
             publicacion.getImagenes().forEach(imagen -> imagen.setPublicacion(null));
             publicacion.getImagenes().clear();
             asociarImagenes(publicacion, dto.getImagenIds());

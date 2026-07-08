@@ -1,10 +1,13 @@
 package com.publicaciones.publicaciones_service.dto;
 
+import java.util.List;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
@@ -33,7 +36,7 @@ public class PublicacionRequestDTO {
     private Long usuarioId;
 
     @Size(max = 5, message = "Se pueden subir hasta 5 imágenes por publicación")
-    private List<String> imagenIds;
+    private List<Long> imagenIds;
 
     @NotNull(message = "La mascota es obligatoria")
     @Valid

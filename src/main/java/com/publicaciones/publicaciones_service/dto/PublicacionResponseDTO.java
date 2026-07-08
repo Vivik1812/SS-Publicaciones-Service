@@ -2,6 +2,7 @@ package com.publicaciones.publicaciones_service.dto;
 
 import lombok.Data;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.publicaciones.publicaciones_service.model.Mascota;
 
