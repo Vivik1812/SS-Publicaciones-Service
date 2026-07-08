@@ -42,7 +42,7 @@ public class PublicacionService {
         mascota.setTamanio(dto.getMascota().getTamanio());
         publicacion.setMascota(mascota);
 
-        // asociar imagen 
+        // asociar imagen
         asociarImagenes(publicacion, dto.getImagenIds());
 
         Publicacion guardada = publicacionRepository.save(publicacion);
@@ -52,10 +52,14 @@ public class PublicacionService {
                 guardada.getUsuarioId(),
                 guardada.getId(),
                 "Se ha creado una nueva publicación de mascota");
-        rabbitTemplate.convertAndSend(
-                RabbitMQConfig.EXCHANGE,
-                RabbitMQConfig.CLAVE_ENRUTAMIENTO,
-                evento);
+        try {
+            rabbitTemplate.convertAndSend(
+                    RabbitMQConfig.EXCHANGE,
+                    RabbitMQConfig.CLAVE_ENRUTAMIENTO,
+                    evento);
+        } catch (Exception e) {
+            System.err.println("No se pudo enviar notificación: " + e.getMessage());
+        }
 
         return mapearAResponse(guardada);
     }
@@ -83,16 +87,16 @@ public class PublicacionService {
                 .toList();
     }
 
-    //asociar imagenes a la publicacion
-    private void asociarImagenes(Publicacion publicacion, List<Long> imagenIds){
+    // asociar imagenes a la publicacion
+    private void asociarImagenes(Publicacion publicacion, List<Long> imagenIds) {
         if (imagenIds == null || imagenIds.isEmpty()) {
             return;
         }
-            List<Imagen> imagenes = imagenRepository.findAllById(imagenIds);
-            imagenes.forEach(imagen -> imagen.setPublicacion(publicacion));
-            publicacion.setImagenes(imagenes);
+        List<Imagen> imagenes = imagenRepository.findAllById(imagenIds);
+        imagenes.forEach(imagen -> imagen.setPublicacion(publicacion));
+        publicacion.setImagenes(imagenes);
     }
-    
+
     // mapear entidad a DTO
     private PublicacionResponseDTO mapearAResponse(Publicacion publicacion) {
         PublicacionResponseDTO response = new PublicacionResponseDTO();
@@ -108,10 +112,9 @@ public class PublicacionService {
         response.setMascota(publicacion.getMascota());
 
         response.setImagenIds(
-            publicacion.getImagenes() == null 
-            ? List.of()
-            :publicacion.getImagenes().stream().map(Imagen::getUrl).toList()
-        );
+                publicacion.getImagenes() == null
+                        ? List.of()
+                        : publicacion.getImagenes().stream().map(Imagen::getUrl).toList());
         return response;
     }
 
